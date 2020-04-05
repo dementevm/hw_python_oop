@@ -1,12 +1,12 @@
-from datetime import date as dt
-import datetime
+import datetime as dt
 
 
 class Record:
     def __init__(self, amount, comment, date=None):
         self.amount = amount
         self.comment = comment
-        self.date = datetime.datetime.strptime(date, '%d.%m.%Y').date() if date else dt.today()
+        self.date = dt.datetime.strptime(date, '%d.%m.%Y').date() \
+            if date else dt.datetime.today().date()
 
 
 class Calculator:
@@ -20,7 +20,7 @@ class Calculator:
     def get_today_stats(self):
         total = 0
         for record in self.records:
-            if record.date == dt.today():
+            if record.date == dt.date.today():
                 total += record.amount
         return total
 
@@ -28,15 +28,14 @@ class Calculator:
         return self.limit - self.get_today_stats()
 
     def get_week_stats(self):
-        d = dt.today()
-        q = datetime.timedelta
-        week = [d, d - q(days=1), d - q(days=2), d - q(days=3), d - q(days=4), d - q(days=5), d - q(days=6),
-                d - q(days=7)]
+        today = dt.datetime.today().date()
+        week = dt.timedelta(days=7)
         total = 0
         for record in self.records:
-            if record.date in week:
+            if (today - record.date) < week:
                 total += record.amount
         return total
+
 
 
 class CaloriesCalculator(Calculator):
@@ -44,9 +43,19 @@ class CaloriesCalculator(Calculator):
     def get_calories_remained(self):
         rem = self.get_today_remainder()
         if rem > 0:
-            return f'Сегодня можно съесть что-нибудь ещё, но с общей калорийностью не более {rem} кКал'
+            return f'Сегодня можно съесть что-нибудь ещё, ' \
+                   f'но с общей калорийностью не более {rem} кКал'
         else:
-            return f'Хватит есть!'
+            return 'Хватит есть!'
+
+
+def convert(currency):
+    if currency == 'rub':
+        return 'руб'
+    elif currency == 'usd':
+        return 'USD'
+    else:
+        return 'Euro'
 
 
 class CashCalculator(Calculator):
@@ -54,21 +63,16 @@ class CashCalculator(Calculator):
     EURO_RATE = float(80)
 
     def get_today_cash_remained(self, currency):
-        rub_rem = self.get_today_remainder()
-        usd_rem = self.get_today_remainder() / CashCalculator.USD_RATE
-        eur_rem = self.get_today_remainder() / CashCalculator.EURO_RATE
-
-        if currency == 'rub' and rub_rem > 0:
-            return f'На сегодня осталось {round(float(rub_rem), 2)} руб'
-        elif currency == 'rub' and rub_rem < 0:
-            return f'Денег нет, держись: твой долг - {round(float(rub_rem), 2) * -1} руб'
-        if currency == 'usd' and usd_rem > 0:
-            return f'На сегодня осталось {round(float(usd_rem), 2)} USD'
-        elif currency == 'usd' and usd_rem < 0:
-            return f'Денег нет, держись: твой долг - {round(float(usd_rem), 2) * -1} USD'
-        if currency == 'eur' and eur_rem > 0:
-            return f'На сегодня осталось {round(float(eur_rem), 2)} Euro'
-        elif currency == 'eur' and eur_rem < 0:
-            return f'Денег нет, держись: твой долг - {round(float(eur_rem), 2) * -1} Euro'
+        if currency == 'rub':
+            remainder = self.get_today_remainder()
+        elif currency == 'usd':
+            remainder = self.get_today_remainder() / CashCalculator.USD_RATE
         else:
-            return f"Денег нет, держись"
+            remainder = self.get_today_remainder() / CashCalculator.EURO_RATE
+
+        if remainder > 0:
+            return f'На сегодня осталось {round(float(remainder), 2)} {convert(currency)}'
+        elif remainder < 0:
+            return f'Денег нет, держись: твой долг - {round(float(remainder), 2) * -1} {convert(currency)}'
+        else:
+            return 'Денег нет, держись'
