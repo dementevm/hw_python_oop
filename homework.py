@@ -37,7 +37,6 @@ class Calculator:
         return total
 
 
-
 class CaloriesCalculator(Calculator):
 
     def get_calories_remained(self):
@@ -71,8 +70,10 @@ class CashCalculator(Calculator):
             remainder = self.get_today_remainder() / CashCalculator.EURO_RATE
 
         if remainder > 0:
-            return f'На сегодня осталось {round(float(remainder), 2)} {convert(currency)}'
+            return f'На сегодня осталось {round(float(remainder), 2)} ' \
+                   f'{convert(currency)}'
         elif remainder < 0:
-            return f'Денег нет, держись: твой долг - {round(float(remainder), 2) * -1} {convert(currency)}'
+            return f'Денег нет, держись: твой долг - ' \
+                   f'{round(float(remainder), 2) * -1} {convert(currency)}'
         else:
             return 'Денег нет, держись'
