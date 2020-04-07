@@ -48,32 +48,30 @@ class CaloriesCalculator(Calculator):
             return 'Хватит есть!'
 
 
-def convert(currency):
-    if currency == 'rub':
-        return 'руб'
-    elif currency == 'usd':
-        return 'USD'
-    else:
-        return 'Euro'
-
-
 class CashCalculator(Calculator):
-    USD_RATE = float(80)
+    USD_RATE = float(70)
     EURO_RATE = float(80)
 
     def get_today_cash_remained(self, currency):
         if currency == 'rub':
             remainder = self.get_today_remainder()
+            currency = 'руб'
         elif currency == 'usd':
             remainder = self.get_today_remainder() / CashCalculator.USD_RATE
+            currency = 'USD'
         else:
             remainder = self.get_today_remainder() / CashCalculator.EURO_RATE
+            currency = 'Euro'
 
         if remainder > 0:
             return f'На сегодня осталось {round(float(remainder), 2)} ' \
-                   f'{convert(currency)}'
+                   f'{currency}'
         elif remainder < 0:
             return f'Денег нет, держись: твой долг - ' \
-                   f'{round(float(remainder), 2) * -1} {convert(currency)}'
+                   f'{abs(round(float(remainder), 2))} {currency}'
         else:
             return 'Денег нет, держись'
+
+
+
+
