@@ -71,7 +71,3 @@ class CashCalculator(Calculator):
                    f'{abs(round(float(remainder), 2))} {currency}'
         else:
             return 'Денег нет, держись'
-
-
-
-
